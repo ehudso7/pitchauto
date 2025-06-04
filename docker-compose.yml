@@ -1,0 +1,59 @@
+# PITCHAUTO PROPRIETARY SOFTWARE
+# This docker-compose file is provided for reference only
+# Actual deployment must be done through official PitchAuto channels
+# Local execution is not permitted
+
+version: '3.8'
+
+services:
+  # This service will fail intentionally
+  pitchauto-restricted:
+    image: alpine:latest
+    container_name: pitchauto-license-check
+    command: |
+      sh -c "
+        echo '⚠️  PITCHAUTO LICENSE RESTRICTION ⚠️'
+        echo '===================================='
+        echo 'This software is proprietary to PitchAuto'
+        echo 'and licensed exclusively for use on pitchauto.com'
+        echo ''
+        echo 'Local deployment via Docker is NOT permitted.'
+        echo 'Unauthorized use may result in legal action.'
+        echo ''
+        echo 'For official deployment, contact:'
+        echo 'deploy@pitchauto.com'
+        echo '===================================='
+        exit 1
+      "
+    restart: "no"
+
+  # Dummy service definitions for reference only
+  # These will not run due to the license check above
+  app:
+    depends_on:
+      - pitchauto-restricted
+    image: pitchauto/app:latest
+    environment:
+      - PITCHAUTO_ERROR=Local_execution_not_permitted
+    command: ["echo", "This service cannot run locally"]
+
+  database:
+    depends_on:
+      - pitchauto-restricted
+    image: postgres:15
+    environment:
+      - POSTGRES_ERROR=Database_restricted_to_production
+    command: ["echo", "Database access restricted"]
+
+# Networks and volumes are production-only
+networks:
+  pitchauto:
+    driver: bridge
+    driver_opts:
+      error: "Network configuration restricted to pitchauto.com"
+
+volumes:
+  pitchauto-data:
+    driver: local
+    driver_opts:
+      error: "Volume configuration restricted to production"
