@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Toaster } from '@/components/ui/toaster'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import './globals.css'
@@ -63,6 +65,8 @@ export default function RootLayout({
           <ErrorBoundary>
             {children}
             <Toaster />
+            <Analytics />
+            <SpeedInsights />
           </ErrorBoundary>
         </body>
       </html>

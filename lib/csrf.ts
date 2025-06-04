@@ -14,7 +14,7 @@ export function hashToken(token: string): string {
 }
 
 export async function getCSRFToken(): Promise<string> {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const existingToken = cookieStore.get(CSRF_COOKIE_NAME)
   
   if (existingToken) {
@@ -41,7 +41,7 @@ export async function validateCSRFToken(request: Request): Promise<boolean> {
     return true
   }
   
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value
   const headerToken = request.headers.get(CSRF_HEADER_NAME)
   

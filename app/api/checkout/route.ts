@@ -30,10 +30,11 @@ export async function POST(req: Request) {
     }
 
     // Check authentication
-    const { userId } = auth()
-    if (!userId) {
+    const authSession = await auth()
+    if (!authSession?.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const userId = authSession.userId
 
     const { plan } = await req.json()
     

@@ -24,13 +24,14 @@ const isProtectedRoute = createRouteMatcher([
   '/api/user(.*)',
 ])
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   // Handle rate limiting for API routes
   if (req.nextUrl.pathname.startsWith('/api/')) {
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
     
     // Different rate limits for authenticated vs anonymous users
-    const { userId } = auth()
+    const authResult = await auth()
+    const userId = authResult.userId
     const limit = userId ? 100 : 10
     const window = 60000 // 1 minute
     
@@ -43,7 +44,8 @@ export default clerkMiddleware((auth, req) => {
   }
   
   // Protect routes that require authentication
-  if (isProtectedRoute(req) && !auth().userId) {
+  const authCheck = await auth()
+  if (isProtectedRoute(req) && !authCheck.userId) {
     return NextResponse.redirect(new URL('/sign-in', req.url))
   }
 })

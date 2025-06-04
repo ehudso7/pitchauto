@@ -14,7 +14,8 @@ interface AuditLogEntry {
 
 export async function createAuditLog(entry: AuditLogEntry) {
   try {
-    const { userId } = auth()
+    const session = await auth()
+    const userId = session?.userId || null
     
     await prisma.auditLog.create({
       data: {

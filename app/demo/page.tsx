@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from '@/components/ui/use-toast'
 import { Sparkles, Copy, Download, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { analytics, performance } from '@/lib/analytics'
 
 export default function DemoPage() {
   const [jobTitle, setJobTitle] = useState('')
@@ -30,6 +31,7 @@ export default function DemoPage() {
     }
 
     setGenerating(true)
+    const startTime = Date.now()
     
     try {
       const response = await fetch('/api/proposals/generate', {
@@ -44,10 +46,15 @@ export default function DemoPage() {
       })
 
       const data = await response.json()
+      const duration = Date.now() - startTime
       
       if (data.success) {
         setProposal(data.proposal.content)
         setConfidence(data.proposal.confidence)
+        
+        // Track analytics
+        analytics.proposalCreated(data.proposal.aiModel || 'demo', data.proposal.wordCount)
+        performance.proposalGenerationTime(duration, data.proposal.aiModel || 'demo')
         
         toast({
           title: 'Proposal Generated!',
@@ -67,6 +74,7 @@ export default function DemoPage() {
 
   const copyProposal = () => {
     navigator.clipboard.writeText(proposal)
+    analytics.proposalCopied()
     toast({
       title: 'Copied!',
       description: 'Proposal copied to clipboard'
@@ -80,6 +88,7 @@ export default function DemoPage() {
     a.href = url
     a.download = `proposal-${jobTitle.replace(/\s+/g, '-')}.txt`
     a.click()
+    analytics.proposalDownloaded()
   }
 
   return (
