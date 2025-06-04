@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String      @id @default(cuid())
+  clerkId           String      @unique
+  email             String      @unique
+  name              String?
+  imageUrl          String?
+  tier              UserTier    @default(FREE)
+  credits           Int         @default(3)
+  stripeCustomerId  String?     @unique
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  proposals         Proposal[]
+  payments          Payment[]
+  apiKeys           ApiKey[]
+  activities        Activity[]
+  templates         Template[]
+  subscription      Subscription?
+}
+
+model Proposal {
+  id                String      @id @default(cuid())
+  userId            String
+  jobTitle          String
+  jobDescription    String
+  jobUrl            String?
+  clientName        String?
+  skills            String?
+  tone              String      @default("professional")
+  content           String
+  confidence        Float
+  wordCount         Int
+  aiModel           String
+  status            ProposalStatus @default(DRAFT)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analytics         Analytics[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Template {
+  id                String      @id @default(cuid())
+  userId            String?
+  name              String
+  description       String?
+  category          String
+  content           String
+  variables         Json?
+  isPublic          Boolean     @default(false)
+  useCount          Int         @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  user              User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([category])
+  @@index([isPublic])
+}
+
+model Analytics {
+  id                String      @id @default(cuid())
+  proposalId        String
+  event             String
+  metadata          Json?
+  timestamp         DateTime    @default(now())
+  
+  proposal          Proposal    @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  
+  @@index([proposalId])
+  @@index([event])
+  @@index([timestamp])
+}
+
+model Payment {
+  id                String      @id @default(cuid())
+  userId            String
+  stripePaymentId   String      @unique
+  amount            Int
+  currency          String      @default("usd")
+  status            PaymentStatus
+  description       String?
+  metadata          Json?
+  createdAt         DateTime    @default(now())
+  
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model Subscription {
+  id                String      @id @default(cuid())
+  userId            String      @unique
+  stripeSubscriptionId String   @unique
+  stripePriceId     String
+  status            SubscriptionStatus
+  currentPeriodStart DateTime
+  currentPeriodEnd  DateTime
+  cancelAtPeriodEnd Boolean    @default(false)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ApiKey {
+  id                String      @id @default(cuid())
+  userId            String
+  key               String      @unique
+  name              String
+  lastUsed          DateTime?
+  requestCount      Int         @default(0)
+  createdAt         DateTime    @default(now())
+  expiresAt         DateTime?
+  
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([key])
+}
+
+model Activity {
+  id                String      @id @default(cuid())
+  userId            String
+  type              String
+  description       String
+  metadata          Json?
+  createdAt         DateTime    @default(now())
+  
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum UserTier {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  VIEWED
+  WON
+  LOST
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  TRIALING
+}
