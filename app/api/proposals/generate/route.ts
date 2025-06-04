@@ -35,7 +35,26 @@ Thank you for considering my proposal.`
 
 export async function POST(request: NextRequest) {
   try {
-    const { jobTitle, jobDescription, skills, tone } = await request.json()
+    // Validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch (e) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+
+    const { jobTitle, jobDescription, skills, tone } = body
+
+    // Validate required fields
+    if (!jobTitle || !jobDescription) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required fields: jobTitle and jobDescription' },
+        { status: 400 }
+      )
+    }
 
     // Check if we're in demo mode or no API key
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'

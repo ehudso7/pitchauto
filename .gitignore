@@ -45,4 +45,4 @@ prisma/dev.db-journal
 .idea/
 
 # Sentry
-.sentryclirc
+.sentryclirc.env.local

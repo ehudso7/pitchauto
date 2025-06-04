@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-// import { useAuth } from '@clerk/nextjs' // Commented for demo mode
+import { useAuth } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { MobileNav } from '@/components/ui/mobile-nav'
 import { ArrowRight, Zap, Shield, TrendingUp, Users, Globe, Star } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -74,8 +75,7 @@ const testimonials = [
 ]
 
 export default function HomePage() {
-  // const { isSignedIn } = useAuth() // Commented for demo mode
-  const isSignedIn = false // Demo mode
+  const { isSignedIn } = useAuth()
   const [scrollY, setScrollY] = useState(0)
 
   useEffect(() => {
@@ -95,28 +95,31 @@ export default function HomePage() {
               <span className="text-xl font-bold">PitchAuto</span>
             </div>
             
-            <div className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-8" aria-label="Main navigation">
               <Link href="/features" className="text-gray-700 hover:text-gray-900">Features</Link>
               <Link href="/pricing" className="text-gray-700 hover:text-gray-900">Pricing</Link>
               <Link href="/enterprise" className="text-gray-700 hover:text-gray-900">Enterprise</Link>
               <Link href="/blog" className="text-gray-700 hover:text-gray-900">Blog</Link>
-            </div>
+            </nav>
             
             <div className="flex items-center space-x-4">
-              {isSignedIn ? (
-                <Link href="/dashboard">
-                  <Button>Dashboard</Button>
-                </Link>
-              ) : (
-                <>
-                  <Link href="/sign-in">
-                    <Button variant="ghost">Sign In</Button>
+              <div className="hidden md:flex items-center space-x-4">
+                {isSignedIn ? (
+                  <Link href="/dashboard">
+                    <Button>Dashboard</Button>
                   </Link>
-                  <Link href="/demo">
-                    <Button>Try Demo</Button>
-                  </Link>
-                </>
-              )}
+                ) : (
+                  <>
+                    <Link href="/sign-in">
+                      <Button variant="ghost">Sign In</Button>
+                    </Link>
+                    <Link href="/demo">
+                      <Button>Try Demo</Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+              <MobileNav />
             </div>
           </div>
         </div>

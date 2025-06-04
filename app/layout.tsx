@@ -1,25 +1,25 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-// import { ClerkProvider } from '@clerk/nextjs' // Commented for demo mode
-import { Analytics } from '@vercel/analytics/react'
+import { ClerkProvider } from '@clerk/nextjs'
 import { Toaster } from '@/components/ui/toaster'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'PitchAuto - AI-Powered Proposals That Win',
-  description: 'Generate winning proposals in seconds with AI. Trusted by 100,000+ freelancers.',
-  keywords: 'proposal generator, ai proposals, freelance tools, upwork proposals, fiverr proposals',
+  title: 'PitchAuto - AI-Powered Proposal Generation',
+  description: 'Generate winning proposals in seconds with AI. Join thousands of freelancers earning more.',
+  keywords: 'proposal generator, AI proposals, freelance tools, business proposals',
   authors: [{ name: 'PitchAuto Team' }],
   openGraph: {
-    title: 'PitchAuto - AI-Powered Proposals That Win',
+    title: 'PitchAuto - AI-Powered Proposal Generation',
     description: 'Generate winning proposals in seconds with AI',
     url: 'https://pitchauto.com',
     siteName: 'PitchAuto',
     images: [
       {
-        url: 'https://pitchauto.com/og-image.png',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
       },
@@ -29,10 +29,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PitchAuto - AI-Powered Proposals That Win',
+    title: 'PitchAuto - AI-Powered Proposal Generation',
     description: 'Generate winning proposals in seconds with AI',
-    creator: '@pitchauto',
-    images: ['https://pitchauto.com/twitter-image.png'],
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
@@ -53,12 +52,20 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body className="min-h-screen bg-background antialiased">
-        {children}
-        <Toaster />
-        <Analytics />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={inter.className}>
+        <head>
+          <link rel="icon" href="/favicon.ico" />
+          <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+          <link rel="manifest" href="/manifest.json" />
+        </head>
+        <body>
+          <ErrorBoundary>
+            {children}
+            <Toaster />
+          </ErrorBoundary>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
