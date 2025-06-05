@@ -1,0 +1,49 @@
+# robots.txt for PitchAuto
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /_next/
+Disallow: /sign-in
+Disallow: /sign-up
+
+# Allow important pages
+Allow: /
+Allow: /features
+Allow: /pricing
+Allow: /demo
+Allow: /about
+Allow: /contact
+Allow: /blog
+Allow: /enterprise
+
+# Sitemap location
+Sitemap: https://pitchauto.com/sitemap.xml
+
+# Crawl delay (in seconds)
+Crawl-delay: 1
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

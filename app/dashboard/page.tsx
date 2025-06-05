@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { useAuth } from '@clerk/nextjs'
+import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -33,8 +35,27 @@ interface Proposal {
 }
 
 export default function DashboardPage() {
-  // const { user } = useUser() // Commented for demo mode
-  const user = { emailAddresses: [{ emailAddress: 'demo@pitchauto.com' }] } // Demo user
+  const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      redirect('/sign-in')
+    }
+  }, [isLoaded, isSignedIn])
+  
+  // Show loading state while auth is loading
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    )
+  }
+  
+  // Demo mode fallback if no user
+  const displayUser = user || { emailAddresses: [{ emailAddress: 'demo@pitchauto.com' }] }
   const [proposals, setProposals] = useState<Proposal[]>([])
   const [generating, setGenerating] = useState(false)
   const [jobTitle, setJobTitle] = useState('')
@@ -137,7 +158,7 @@ export default function DashboardPage() {
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold">Dashboard</h1>
               <Badge variant="secondary">
-                {user?.emailAddresses[0].emailAddress}
+                {displayUser?.emailAddresses[0].emailAddress}
               </Badge>
             </div>
             <div className="flex items-center space-x-4">

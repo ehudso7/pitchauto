@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && next build"
+    "vercel-build": "prisma generate && next build",
+    "db:seed": "node prisma/seed.js",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.11.3",
@@ -24,8 +28,10 @@
     "@vercel/speed-insights": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "framer-motion": "^11.0.0",
     "lucide-react": "^0.363.0",
     "next": "14.1.4",
+    "openai": "^4.28.0",
     "react": "^18",
     "react-dom": "^18",
     "resend": "^3.2.0",

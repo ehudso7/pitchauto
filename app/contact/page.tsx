@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { toast } from '@/components/ui/use-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Mail, MessageSquare, Phone, MapPin, Send } from 'lucide-react'
@@ -22,10 +23,65 @@ export default function ContactPage() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
+    
+    // Validate form
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      toast({
+        title: 'Missing information',
+        description: 'Please fill in all fields',
+        variant: 'destructive'
+      })
+      return
+    }
+    
+    setSubmitting(true)
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message')
+      }
+      
+      if (data.success) {
+        toast({
+          title: 'Message sent!',
+          description: 'We\'ll get back to you within 24 hours.',
+        })
+        
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        })
+      } else {
+        throw new Error('Failed to send message')
+      }
+    } catch (error) {
+      console.error('Contact form error:', error)
+      
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to send message. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const contactMethods = [
@@ -163,9 +219,18 @@ export default function ContactPage() {
                 />
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
-                <Send className="h-4 w-4 mr-2" />
-                Send Message
+              <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Send className="h-4 w-4 mr-2 animate-pulse" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Message
+                  </>
+                )}
               </Button>
             </form>
           </div>

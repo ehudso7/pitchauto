@@ -31,6 +31,8 @@ export default function DemoPage() {
     }
 
     setGenerating(true)
+    setProposal('') // Clear previous proposal
+    setConfidence(0)
     const startTime = Date.now()
     
     try {
@@ -48,7 +50,11 @@ export default function DemoPage() {
       const data = await response.json()
       const duration = Date.now() - startTime
       
-      if (data.success) {
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`)
+      }
+      
+      if (data.success && data.proposal) {
         setProposal(data.proposal.content)
         setConfidence(data.proposal.confidence)
         
@@ -58,15 +64,25 @@ export default function DemoPage() {
         
         toast({
           title: 'Proposal Generated!',
-          description: `Confidence score: ${Math.round(data.proposal.confidence * 100)}%`
+          description: `Confidence score: ${Math.round(data.proposal.confidence * 100)}%${data.proposal.isDemo ? ' (Demo Mode)' : ''}`
         })
+      } else {
+        throw new Error('Invalid response format')
       }
     } catch (error) {
+      console.error('Proposal generation error:', error)
+      
+      // Show specific error message
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate proposal'
+      
       toast({
         title: 'Error',
-        description: 'Failed to generate proposal',
+        description: errorMessage,
         variant: 'destructive'
       })
+      
+      // Track error
+      analytics.errorOccurred('proposal_generation_failed', errorMessage)
     } finally {
       setGenerating(false)
     }
@@ -183,7 +199,22 @@ export default function DemoPage() {
               </div>
             </CardHeader>
             <CardContent>
-              {proposal ? (
+              {generating ? (
+                <div className="space-y-4">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-5/6 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-4/5 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                  <div className="text-center text-sm text-gray-500">
+                    <Sparkles className="h-4 w-4 inline-block animate-spin mr-2" />
+                    Crafting your winning proposal...
+                  </div>
+                </div>
+              ) : proposal ? (
                 <>
                   <div className="prose prose-sm max-w-none mb-4 p-4 bg-gray-50 rounded-lg">
                     <p className="whitespace-pre-wrap">{proposal}</p>
